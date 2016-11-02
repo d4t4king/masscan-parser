@@ -1,14 +1,16 @@
-# = nmap/parser.rb: Nmap::Parser
+# = masscan/parser.rb: Masscan::Parser
 #
-# Ruby interface to the Nmap Security Scanner and its XML formatted scan data
+# Ruby interface to the Masscan Security Scanner and its XML formatted scan data
 #
 # = Homepage
 #
-# http://rubynmap.sourceforge.net
+# http://github.com/d4t4king/masscan-parser
 #
 # = Author
 #
-# Kris Katterjohn (katterjohn@gmail.com)
+# Charlie Heselton (ch@rlie.info)
+# 	Based on, and (mostly) copied from Ruby nmap-parser by
+# 		Kris Katterjohn (katterjohn@gmail.com)
 #
 # = License
 #
@@ -32,11 +34,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# $Id: parser.rb 220 2010-06-02 03:51:54Z kjak $
-# https://rubynmap.svn.sourceforge.net/svnroot/rubynmap/trunk
-
-# :main: Nmap::Parser
-# :title: Ruby Nmap::Parser
+# :main: Masscan::Parser
+# :title: Ruby Masscan::Parser
 
 require 'rexml/document'
 
@@ -54,7 +53,7 @@ end
 # :startdoc:
 
 # Provides a namespace for everything this library creates
-module Nmap
+module Masscan
 	# :stopdoc:
 
 	# Holds all of the classes for the stream-style XML parsing (the
@@ -69,18 +68,18 @@ end
 
 == What Is This Library For?
 
-This library provides a Ruby interface to the Nmap Security Scanner and its
-XML formatted scan data.  It can run Nmap and parse its XML output directly
+This library provides a Ruby interface to the Masscan Security Scanner and its
+XML formatted scan data.  It can run Masscan and parse its XML output directly
 from the scan, parse a file or string of XML scan data, or parse XML scan
 data from an object via its read() method.  This information is presented in
 an easy-to-use and intuitive fashion for further storage and manipulation.
 
-Note that while Anthony Persaud's Perl Nmap::Parser was certainly an
+Note that while Anthony Persaud's Perl Masscan::Parser was certainly an
 inspiration when designing this library, there are a number of distinguishing
 characteristics.  Very briefly, this library contains more classes, many more
 methods, and has blocks extensively available.
 
-The Nmap Security Scanner is an awesome utility written and maintained by
+The Masscan Security Scanner is an awesome utility written and maintained by
 Fyodor (fyodor(a)insecure.org).  Its main function is port scanning, but it also
 has service and operating system detection, its own scripting engine and a
 whole lot more.  One of its many available output formats is XML, which allows
@@ -102,7 +101,7 @@ is given.
 
 == Module Hierarchy
 
-  Nmap::Parser
+  Masscan::Parser
   |
   + Session           <- Scan session information
   |
@@ -131,12 +130,12 @@ is given.
 == Examples
 
 There are two ways to go about getting a new Parser object and actually parsing
-Nmap's XML output:
+Masscan's XML output:
 
-* Call one of the Nmap::Parser class methods to parse the XML and return a new
+* Call one of the Masscan::Parser class methods to parse the XML and return a new
   Parser object all in one step.
 
-* Call Nmap::Parser.new to get a new object and then call one of the instance
+* Call Masscan::Parser.new to get a new object and then call one of the instance
   parsing methods (e.g. parsefile()).  The main reason to go this route is that
   new() takes a hash of options; for example, this is how the callback feature
   is implemented.
@@ -146,60 +145,60 @@ Nmap's XML output:
 This method is not limited to only String objects, but rather any object which
 responsds to to_str().
 
-	require 'nmap/parser'
+	require 'masscan/parser'
 
-	parser = Nmap::Parser.new
+	parser = Masscan::Parser.new
 	parser.parsestring(xml)
 
 or
 
-	parser = Nmap::Parser.parsestring(xml)
+	parser = Masscan::Parser.parsestring(xml)
 
 === Reading and Parsing From a File
 
-	require 'nmap/parser'
+	require 'masscan/parser'
 
-	parser = Nmap::Parser.parsefile("log.xml")
+	parser = Masscan::Parser.parsefile("log.xml")
 
 === Reading and Parsing From an Object
 
 This method can read from any object responding to a read() method that
 returns a String (or something else responding to to_str())
 
-	require 'nmap/parser'
+	require 'masscan/parser'
 
-	parser = Nmap::Parser.parseread($stdin)
+	parser = Masscan::Parser.parseread($stdin)
 
 === Scanning and Parsing
 
-This is the only Parser method that requires Nmap to be available.
+This is the only Parser method that requires masscan to be available.
 
-	require 'nmap/parser'
+	require 'masscan/parser'
 
-	parser = Nmap::Parser.parsescan("sudo nmap", "-sVC 192.168.1.0/24")
+	parser = Masscan::Parser.parsescan("sudo masscan", "-p 0-65535 192.168.1.0/24")
 
 === Registering a Callback
 
-To use a callback you create a new Parser object and register a proc or method
-to call each time a new host is parsed, as soon as it's parsed.  The callback
-is then run in a new thread and is passed the newly created Nmap::Parser::Host
-object.
-
-	require 'nmap/parser'
-
-	callback = proc do |host|
-		return if host.status != "up"
-		puts "Found #{host.addr}"
-	end
-
-	parser = Nmap::Parser.new(:callback => callback)
-	parser.parsefile("nmaplog.xml")
-
-	# Found 192.168.10.1
-	# Found 192.168.10.2
-	# Found 192.168.10.7
-	# [...]
-
+#To use a callback you create a new Parser object and register a proc or method
+#to call each time a new host is parsed, as soon as it's parsed.  The callback
+#is then run in a new thread and is passed the newly created Masscan::Parser::Host
+#object.
+#
+#	require 'nmap/parser'
+#
+#	callback = proc do |host|
+#		return if host.status != "up"
+#		puts "Found #{host.addr}"
+#	end
+#
+#	parser = Masscan::Parser.new(:callback => callback)
+#	parser.parsefile("nmaplog.xml")
+#
+#	# Found 192.168.10.1
+#	# Found 192.168.10.2
+#	# Found 192.168.10.7
+#	# [...]
+#
 === Doing a Bit More
 
 After printing a little session information, this example will cycle through
@@ -207,7 +206,7 @@ all of the up hosts, printing state and service information on the open TCP
 and UDP ports.  See the examples directory that comes with this library for
 more examples.
 
-	puts "Nmap args: #{parser.session.scan_args}"
+	puts "Masscan args: #{parser.session.scan_args}"
 	puts "Runtime: #{parser.session.scan_time} seconds"
 	puts
 
@@ -234,24 +233,16 @@ more examples.
 
 Author & Maintainer:
 
-* Kris Katterjohn (katterjohn(a)gmail.com)
+* Charlie Heselton (ch@rlie.info)
 
 Contributors (in chronological order of first contribution):
 
-* Stefan Friedli (stfr(a)scip.ch)
-* Daniel Roethlisberger (daniel(a)roe.ch)
-* Dustin Webber (dustinw(a)aos5.com)
-* Tom Sellers (nmap(a)fadedcode.net)
-* Rory McCune (rorym(a)nmrconsult.net)
-* Russell Fulton (r.fulton(a)auckland.ac.nz)
+* Kris Katterjohn (katterjohn@gmail.com)
 
 Thanks a lot for taking the time and helping out, everybody!
 
-For information on what each contributor actually did, please take a look at
-the project's ChangeLog and Subversion logs.
-
 =end
-class Nmap::Parser
+class Masscan::Parser
 	# Raw XML output from the scan
 	attr_reader :rawxml
 	# Session object for the scan
@@ -271,25 +262,25 @@ class Nmap::Parser
 	# :method: self.parsefile(filename)
 	# Wrapper around the instance method's functionality
 	#
-	# Returns a new Nmap::Parser object and yields it to a block if one is
+	# Returns a new Masscan::Parser object and yields it to a block if one is
 	# given
 
 	# :method: self.parseread(obj)
 	# Wrapper around the instance method's functionality
 	#
-	# Returns a new Nmap::Parser object and yields it to a block if one is
+	# Returns a new Masscan::Parser object and yields it to a block if one is
 	# given
 
 	# :method: self.parsescan(nmap,args,targets=[])
 	# Wrapper around the instance method's functionality
 	#
-	# Returns a new Nmap::Parser object and yields it to a block if one is
+	# Returns a new Masscan::Parser object and yields it to a block if one is
 	# given
 
 	# :method: self.parsestring(str)
 	# Wrapper around the instance method's functionality
 	#
-	# Returns a new Nmap::Parser object and yields it to a block if one is
+	# Returns a new Masscan::Parser object and yields it to a block if one is
 	# given
 
 	#
@@ -316,7 +307,7 @@ class Nmap::Parser
 		parsestring(obj.read)
 	end
 
-	# Read and parse the contents of the Nmap XML file +filename+
+	# Read and parse the contents of the Masscan XML file +filename+
 	def parsefile(filename)
 		File.open(filename) { |f| parseread(f) }
 	rescue
@@ -333,18 +324,18 @@ class Nmap::Parser
 		parse(str.to_str)
 	end
 
-	# Essentially runs "+nmap+ -d +args+ +targets+"
+	# Essentially runs "+masscan+ -d +args+ +targets+"
 	#
-	# +nmap+ is here to allow you to do things like:
+	# +masscan+ is here to allow you to do things like:
 	#
-	# parser.parsescan("sudo ./nmap", arguments, targets)
+	# parser.parsescan("sudo ./masscan", arguments, targets)
 	#
 	# and still make it easy for me to inject the options for XML output
 	# and debugging.
 	#
 	# +args+ can't contain arguments like -oA, -oX, etc. as these could
 	# interfere with Parser's processing.  If you need that other output,
-	# you could run Nmap yourself and just pass the -oX output to Parser.
+	# you could run Masscan yourself and just pass the -oX output to Parser.
 	# Or you could use rawxml to grab the XML from the scan and write it
 	# to a file, for example.
 	#
@@ -352,13 +343,13 @@ class Nmap::Parser
 	# only for convenience because you can also put any targets you want
 	# scanned in +args+ (which is what I tend to do unless I happen to
 	# already have a collection of targets as an array).
-	def parsescan(nmap, args, targets = [])
+	def parsescan(masscan, args, targets = [])
 		if args =~ /\s-o|^-o/
 			raise ArgumentError, "Output option (-o*) passed to parsescan()"
 		end
 
 		# Enable debugging and XML; pass args and targets
-		command = "#{nmap} -d -oX - #{args} #{targets.join(" ")}"
+		command = "#{masscan} -d -oX - #{args} #{targets.join(" ")}"
 
 		begin
 			# First try popen3() if it loaded successfully..
@@ -380,7 +371,7 @@ class Nmap::Parser
 	#
 	# NOTE: Calling parser.hosts(status).size can be very different than
 	# running parser.session.numhosts(status) because the information there
-	# and here are coming from different places in the XML.  Nmap will not
+	# and here are coming from different places in the XML.  Masscan will not
 	# typically list individual hosts which it doesn't know or assume are
 	# "up".
 	def hosts(status = "") # :yields: host
@@ -421,7 +412,7 @@ class Nmap::Parser
 	#
 	# NOTE: Calling parser.get_ips(status).size can be very different than
 	# running parser.session.numhosts(status) because the information there
-	# and here are coming from different places in the XML.  Nmap will not
+	# and here are coming from different places in the XML.  Masscan will not
 	# typically list individual hosts which it doesn't know or assume are
 	# "up".
 	def get_ips(status = "") # :yields: host.addr
@@ -445,7 +436,7 @@ class Nmap::Parser
 	#    are not available.
 	def +(pa)
 		return nil unless self.class == pa.class
-		n = Nmap::Parser.new
+		n = Masscan::Parser.new
 		n.rawxml = nil
 		n.session = nil
 		[ self.hosts, pa.hosts ].each do |h|
@@ -511,7 +502,7 @@ class Nmap::Parser
 		# :)
 		lthr = Thread.new { @blinken.call } if @blinken
 
-		parser = Nmap::XmlParsing::MyParser.new(@callback)
+		parser = Masscan::XmlParsing::MyParser.new(@callback)
 		REXML::Document.parse_stream(xml, parser)
 
 		lthr.kill if @blinken
@@ -533,7 +524,7 @@ class Nmap::Parser
 	# argument.  Use the instance parsing methods to read in the XML and
 	# parse the data into the available classes.
 	#
-	# Returns the new Nmap::Parser object and yields it to a block if one is
+	# Returns the new Masscan::Parser object and yields it to a block if one is
 	# given
 	def initialize(opts = {}) # :yields: parser
 		@hosts = []
@@ -550,14 +541,14 @@ class Nmap::Parser
 	end
 end
 
-# This holds session information, such as runtime, Nmap's arguments,
+# This holds session information, such as runtime, Masscan's arguments,
 # and verbosity/debugging
-class Nmap::Parser::Session
+class Masscan::Parser::Session
 	# Command run to initiate the scan
 	attr_reader :scan_args
-	# Version number of the Nmap used to scan
+	# Version number of the Masscan used to scan
 	attr_reader :nmap_version
-	# XML version of Nmap's output
+	# XML version of Masscan's output
 	attr_reader :xml_version
 	# Starting time
 	attr_reader :start_str, :start_time
@@ -565,9 +556,9 @@ class Nmap::Parser::Session
 	attr_reader :stop_str, :stop_time
 	# Total scan time in seconds (could differ from stop_time - start_time)
 	attr_reader :scan_time
-	# Nmap's exit status ("success" or "error")
+	# Masscan's exit status ("success" or "error")
 	attr_reader :exit
-	# Nmap's error message if exit status is "error"
+	# Masscan's error message if exit status is "error"
 	attr_reader :errormsg
 	# Amount of verbosity (-v) used while scanning
 	attr_reader :verbose
@@ -583,7 +574,7 @@ class Nmap::Parser::Session
 	#
 	# NOTE: Calling parser.sessions.numhosts(status) can be very different
 	# than running parser.hosts(status).size because the information there
-	# and here are coming from different places in the XML.  Nmap will not
+	# and here are coming from different places in the XML.  Masscan will not
 	# typically list individual hosts which it doesn't know or assume are
 	# "up".
 	def numhosts(state = "")
@@ -676,7 +667,7 @@ class Nmap::Parser::Session
 	# :startdoc:
 end
 
-class Nmap::Parser::Session::ScanInfo # :nodoc: all
+class Masscan::Parser::Session::ScanInfo # :nodoc: all
 	attr_reader :type, :scanflags, :proto, :numservices
 
 	private
@@ -698,7 +689,7 @@ end
 # Status, IP/MAC addresses, hostnames, all that.  Port information is
 # available in this class; either accessed through here or directly
 # from a Port object.
-class Nmap::Parser::Host
+class Masscan::Parser::Host
 	# Status of the host, typically "up" or "down"
 	attr_reader :status
 	# Reason for the status
@@ -1173,7 +1164,7 @@ class Nmap::Parser::Host
 end
 
 # This holds information on the time statistics for this host
-class Nmap::Parser::Host::Times
+class Masscan::Parser::Host::Times
 	# Smoothed round-trip time
 	attr_reader :srtt
 	# Round-trip time variance / deviation
@@ -1201,7 +1192,7 @@ class Nmap::Parser::Host::Times
 end
 
 # This holds the information about an NSE script run against a host or port
-class Nmap::Parser::Host::Script
+class Masscan::Parser::Host::Script
 	# NSE Script name
 	attr_reader :id
 	# NSE Script output
@@ -1228,7 +1219,7 @@ class Nmap::Parser::Host::Script
 end
 
 # This holds the information about an individual port or protocol
-class Nmap::Parser::Host::Port
+class Masscan::Parser::Host::Port
 	# Port number
 	attr_reader :num
 	# Port protocol ("tcp", "udp", etc)
@@ -1290,7 +1281,7 @@ class Nmap::Parser::Host::Port
 		@service = Service.new(port)
 
 		@scripts = port[:kids].collect_tags(:script) do |script|
-			Nmap::Parser::Host::Script.new(script)
+			Masscan::Parser::Host::Script.new(script)
 		end
 	end
 
@@ -1299,7 +1290,7 @@ end
 
 # This holds the information about "extra ports": groups of ports which have
 # the same state.
-class Nmap::Parser::Host::ExtraPorts
+class Masscan::Parser::Host::ExtraPorts
 	# Total number of ports in this state
 	attr_reader :count
 	# What state the ports are in
@@ -1347,7 +1338,7 @@ end
 
 # This holds information on a traceroute, such as the port and protocol used
 # and an array of responsive hops
-class Nmap::Parser::Host::Traceroute
+class Masscan::Parser::Host::Traceroute
 	# Port number used during traceroute
 	attr_reader :port
 	# Protocol used during traceroute
@@ -1386,7 +1377,7 @@ class Nmap::Parser::Host::Traceroute
 end
 
 # This holds information on an individual traceroute hop
-class Nmap::Parser::Host::Traceroute::Hop
+class Masscan::Parser::Host::Traceroute::Hop
 	# How many hops away the host is
 	attr_reader :ttl
 	# Round-trip time of the host
@@ -1423,7 +1414,7 @@ class Nmap::Parser::Host::Traceroute::Hop
 end
 
 # This holds the service information for a port
-class Nmap::Parser::Host::Port::Service
+class Masscan::Parser::Host::Port::Service
 	# Name of the service
 	attr_reader :name
 	# Vendor name
@@ -1494,7 +1485,7 @@ class Nmap::Parser::Host::Port::Service
 end
 
 # This holds the OS information from OS Detection
-class Nmap::Parser::Host::OS
+class Masscan::Parser::Host::OS
 	# OS fingerprint
 	attr_reader :fingerprint
 
@@ -1635,7 +1626,7 @@ class Nmap::Parser::Host::OS
 	# :startdoc:
 end
 
-class Nmap::Parser::Host::OS::PortUsed # :nodoc: all
+class Masscan::Parser::Host::OS::PortUsed # :nodoc: all
 	attr_reader :state, :proto, :num
 
 	private
@@ -1652,7 +1643,7 @@ class Nmap::Parser::Host::OS::PortUsed # :nodoc: all
 end
 
 # Holds information for an individual OS class record
-class Nmap::Parser::Host::OS::OSClass
+class Masscan::Parser::Host::OS::OSClass
 	# Device type, like "router" or "general purpose"
 	attr_reader :ostype
 	# Company that makes the OS, like "Apple" or "Microsoft"
@@ -1689,7 +1680,7 @@ class Nmap::Parser::Host::OS::OSClass
 end
 
 # Holds information for an individual OS match record
-class Nmap::Parser::Host::OS::OSMatch
+class Masscan::Parser::Host::OS::OSMatch
 	# Operating System name
 	attr_reader :name
 	# Accuracy of this match
@@ -1719,10 +1710,10 @@ end
 # :stopdoc:
 
 #
-# Now for the actual XML parsing stuff for Nmap::Parser ...
+# Now for the actual XML parsing stuff for Masscan::Parser ...
 #
 
-class Nmap::XmlParsing::TagGroup < Array
+class Masscan::XmlParsing::TagGroup < Array
 	def each_tag(name)
 		self.each { |tag| yield tag if match(tag, name) }
 	end
@@ -1743,18 +1734,18 @@ class Nmap::XmlParsing::TagGroup < Array
 end
 
 # Super simple!
-class Nmap::XmlParsing::Tag < Hash
+class Masscan::XmlParsing::Tag < Hash
 	private
 
 	def initialize(name, attrs)
 		self[:name] = name
 		self[:attrs] = attrs
-		self[:kids] = Nmap::XmlParsing::TagGroup.new
+		self[:kids] = Masscan::XmlParsing::TagGroup.new
 	end
 end
 
-class Nmap::XmlParsing::MyParser
-	include Nmap
+class Masscan::XmlParsing::MyParser
+	include Masscan
 
 	attr_reader :session
 	attr_reader :hosts
@@ -1822,8 +1813,6 @@ class Nmap::XmlParsing::MyParser
 		:taskbegin,
 		:taskprogress,
 		:taskend,
-		# Zenmap uses this for screen output
-		:output
 	]
 
 	def ignored(name)
