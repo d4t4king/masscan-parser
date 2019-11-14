@@ -8,7 +8,7 @@
 #
 # = Author
 #
-# Charlie Heselton (ch@rlie.info)
+# Charlie Heselton (dataking@gmail.com)
 # 	Based on, and (mostly) copied from Ruby nmap-parser by
 # 		Kris Katterjohn (katterjohn@gmail.com)
 #
